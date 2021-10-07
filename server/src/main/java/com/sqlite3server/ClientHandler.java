@@ -83,48 +83,38 @@ public class ClientHandler extends Thread {
     public void run() {
         while (true) {
             for (int i = 0; i < 5; i++) {
-                try {
-                    User user = users[i];
-                    if (user != null && user.socket != null) {
-                        user.msg = null;
-                        try {
-                            user.start();
-                        } catch (Exception e) {
-                            // TODO -- change exception type
-                            user.resume();
-                        }
-                        sleep(1);
-                        user.suspend();
-                        if (user.msg != null) {
-                            for (int j = 0; j < 5; j++) {
-                                if (users[j] != null && i != j) {
-                                    sendMessage(users[j], user.msg);
+                if (users[i].socket.isClosed()) {
+                    users[i] = null;
+                } else {
+                    try {
+                        User user = users[i];
+                        if (user != null && user.socket != null) {
+                            user.msg = null;
+                            try {
+                                user.start();
+                            } catch (Exception e) {
+                                // TODO -- change exception type
+                                user.resume();
+                            }
+                            sleep(1);
+                            user.suspend();
+                            if (user.msg != null) {
+                                for (int j = 0; j < 5; j++) {
+                                    if (users[j] != null && i != j) {
+                                        sendMessage(users[j], user.msg);
+                                    }
                                 }
                             }
-                        }
 
+                        }
+                    } catch (IOException e) {
+                        // TODO -- handle exception
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
                     }
-                } catch (IOException e) {
-                    // TODO -- handle exception
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
                 }
             }
         }
     }
-
-    // class MessageReciever extends Thread {
-
-    // Socket s;
-
-    // public void setSocket(Socket s) {
-    // this.s = s;
-    // }
-
-    // @Override
-    // public void run() {
-
-    // }
-    // }
 }
